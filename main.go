@@ -95,9 +95,9 @@ func main() {
 	var offset = 0
 	for {
 		url := urlmask + count + "&offset=" + strconv.Itoa(offset)
-		log.Println(url)
+		//log.Println(url)
 		b := HttpGet(url, nil)
-		log.Println(string(b))
+		//log.Println(string(b))
 		//use https://mholt.github.io/json-to-go/ Luke!
 		if b == nil {
 			log.Println("empty")
