@@ -17,7 +17,8 @@ const (
 	gid     = "mailru"
 	fields  = "sex,bdate,city,country,photo_50,photo_200_orig,photo_200,photo_400_orig,photo_max,photo_max_orig,has_mobile,contacts,connections,site,education,can_post,last_seen,relation"
 	version = "&version=5.64"
-	count   = "&count=10" //max = 1000
+	//тут 1000 поставь как отладишь
+	count = "&count=10" //max = 1000
 )
 
 var (
@@ -93,6 +94,7 @@ func main() {
 	//see https://vk.com/dev/groups.getMembers
 	urlmask := baseUri + members + "?group_id=" + gid + "&fields=" + url.QueryEscape(fields) + version
 	var offset = 0
+	//это бесконечн цикл в гоу
 	for {
 		url := urlmask + count + "&offset=" + strconv.Itoa(offset)
 		//log.Println(url)
@@ -112,12 +114,16 @@ func main() {
 		items := res.Response.Users
 		if items == nil || len(items) == 0 {
 			log.Println("no items")
+			//больше нет юзеров
 			break
 		}
 		for _, user := range items {
 			log.Println(user.ID, user.FirstName, user.LastName, user.Photo200Orig, user.Sex, user.Bdate, user.City.Title)
 		}
+		//закоменть брик как будешь готов по формату
 		break
+		//vk не любит запросы больше 3 в секунду
+		time.Sleep(500 * time.Millisecond)
 	}
 }
 
