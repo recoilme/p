@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
@@ -18,7 +19,7 @@ const (
 	fields  = "sex,bdate,city,country,photo_50,photo_200_orig,photo_200,photo_400_orig,photo_max,photo_max_orig,has_mobile,contacts,connections,site,education,can_post,last_seen,relation"
 	version = "&version=5.64"
 	//тут 1000 поставь как отладишь
-	count = "&count=10" //max = 1000
+	count = "&count=1000" //max = 1000
 )
 
 var (
@@ -34,51 +35,48 @@ type Profiles struct {
 	Response struct {
 		Count int `json:"count"`
 		Users []struct {
-			ID        int    `json:"id"`
-			FirstName string `json:"first_name"`
-			LastName  string `json:"last_name"`
-			Sex       int    `json:"sex"`
-			Bdate     string `json:"bdate,omitempty"`
-			City      struct {
-				ID    int    `json:"id"`
-				Title string `json:"title"`
-			} `json:"city"`
-			Country struct {
-				ID    int    `json:"id"`
-				Title string `json:"title"`
-			} `json:"country"`
+			UID          int    `json:"uid"`
+			FirstName    string `json:"first_name"`
+			LastName     string `json:"last_name"`
+			Sex          int    `json:"sex"`
+			Bdate        string `json:"bdate,omitempty"`
+			City         int    `json:"city,omitempty"`
+			Country      int    `json:"country,omitempty"`
 			Photo50      string `json:"photo_50"`
 			Photo200     string `json:"photo_200,omitempty"`
 			PhotoMax     string `json:"photo_max"`
 			Photo200Orig string `json:"photo_200_orig"`
 			Photo400Orig string `json:"photo_400_orig,omitempty"`
 			PhotoMaxOrig string `json:"photo_max_orig"`
-			HasMobile    int    `json:"has_mobile"`
+			HasMobile    int    `json:"has_mobile,omitempty"`
 			CanPost      int    `json:"can_post"`
-			Site         string `json:"site"`
+			Site         string `json:"site,omitempty"`
 			LastSeen     struct {
 				Time     int `json:"time"`
 				Platform int `json:"platform"`
-			} `json:"last_seen"`
-			CommonCount    int    `json:"common_count"`
-			University     int    `json:"university,omitempty"`
-			UniversityName string `json:"university_name,omitempty"`
-			Faculty        int    `json:"faculty,omitempty"`
-			FacultyName    string `json:"faculty_name,omitempty"`
-			Graduation     int    `json:"graduation,omitempty"`
-			Relation       int    `json:"relation,omitempty"`
-			Universities   []struct {
-				ID          int    `json:"id"`
-				Country     int    `json:"country"`
-				City        int    `json:"city"`
-				Name        string `json:"name"`
-				Faculty     int    `json:"faculty"`
-				FacultyName string `json:"faculty_name"`
-			} `json:"universities,omitempty"`
-			Schools   []interface{} `json:"schools,omitempty"`
-			Relatives []interface{} `json:"relatives,omitempty"`
-			Skype     string        `json:"skype,omitempty"`
-		} `json:"items"`
+			} `json:"last_seen,omitempty"`
+			Hidden          int    `json:"hidden,omitempty"`
+			Deactivated     string `json:"deactivated,omitempty"`
+			Skype           string `json:"skype,omitempty"`
+			Twitter         string `json:"twitter,omitempty"`
+			Instagram       string `json:"instagram,omitempty"`
+			Facebook        string `json:"facebook,omitempty"`
+			FacebookName    string `json:"facebook_name,omitempty"`
+			University      int    `json:"university,omitempty"`
+			UniversityName  string `json:"university_name,omitempty"`
+			Faculty         int    `json:"faculty,omitempty"`
+			FacultyName     string `json:"faculty_name,omitempty"`
+			Graduation      int    `json:"graduation,omitempty"`
+			EducationForm   string `json:"education_form,omitempty"`
+			EducationStatus string `json:"education_status,omitempty"`
+			Relation        int    `json:"relation,omitempty"`
+			RelationPartner struct {
+				ID        int    `json:"id"`
+				FirstName string `json:"first_name"`
+				LastName  string `json:"last_name"`
+			} `json:"relation_partner,omitempty"`
+			HomePhone string `json:"home_phone,omitempty"`
+		} `json:"users"`
 	} `json:"response"`
 }
 
@@ -89,6 +87,17 @@ func init() {
 	defHeaders["Cookie"] = ""
 }
 
+type response struct {
+	resp *http.Response
+	url  string
+}
+
+func get(url string, r chan response) {
+	if resp, err := http.Get(url); err == nil {
+		r <- response{resp, url}
+	}
+}
+
 func main() {
 	log.Println("vk")
 	//see https://vk.com/dev/groups.getMembers
@@ -97,7 +106,11 @@ func main() {
 	//это бесконечн цикл в гоу
 	for {
 		url := urlmask + count + "&offset=" + strconv.Itoa(offset)
-		//log.Println(url)
+		offset = offset + 10
+		if offset == 100 {
+			break
+		}
+
 		b := HttpGet(url, nil)
 		//log.Println(string(b))
 		//use https://mholt.github.io/json-to-go/ Luke!
@@ -118,12 +131,13 @@ func main() {
 			break
 		}
 		for _, user := range items {
-			log.Println(user.ID, user.FirstName, user.LastName, user.Photo200Orig, user.Sex, user.Bdate, user.City.Title)
+			fmt.Println(user.UID, user.FirstName, user.LastName, user.Photo200Orig, user.Sex, user.Bdate, user.City)
 		}
 		//закоменть брик как будешь готов по формату
-		break
+		//break
 		//vk не любит запросы больше 3 в секунду
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(900 * time.Millisecond)
+
 	}
 }
 
