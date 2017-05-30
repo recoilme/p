@@ -99,17 +99,17 @@ func get(url string, r chan response) {
 }
 
 func main() {
-	log.Println("vk")
+	fmt.Printf("user.UID\tuser.FirstName\tuser.LastName\tuser.Photo200Orig\tuser.Sex\tuser.Bdate\tuser.City\tuser.Facebook\tuser.FacebookName\tuser.HomePhone\tuser.Instagram\tuser.Skype\tuser.Twitter\tuser.UniversityName\tuser.EducationStatus")
 	//see https://vk.com/dev/groups.getMembers
 	urlmask := baseUri + members + "?group_id=" + gid + "&fields=" + url.QueryEscape(fields) + version
 	var offset = 0
 	//это бесконечн цикл в гоу
 	for {
 		url := urlmask + count + "&offset=" + strconv.Itoa(offset)
-		offset = offset + 10
-		if offset == 100 {
-			break
-		}
+		offset = offset + 1000
+		//if offset == 100 {
+		//break
+		//}
 
 		b := HttpGet(url, nil)
 		//log.Println(string(b))
@@ -131,9 +131,13 @@ func main() {
 			break
 		}
 		for _, user := range items {
-			fmt.Println(user.UID, user.FirstName, user.LastName, user.Photo200Orig, user.Sex, user.Bdate, user.City)
+			fmt.Printf("%d\t%s\t%s\t%s\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t\n", user.UID, user.FirstName, user.LastName, user.Photo200Orig, user.Sex,
+				user.Bdate, user.City, user.Facebook, user.FacebookName, user.HomePhone, user.Instagram, user.Skype, user.Twitter,
+				user.UniversityName, user.EducationStatus)
 		}
 		//закоменть брик как будешь готов по формату
+		//
+
 		//break
 		//vk не любит запросы больше 3 в секунду
 		time.Sleep(900 * time.Millisecond)
