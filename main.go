@@ -99,7 +99,7 @@ func get(url string, r chan response) {
 }
 
 func main() {
-	fmt.Printf("user.UID\tuser.FirstName\tuser.LastName\tuser.Photo200Orig\tuser.Sex\tuser.Bdate\tuser.City\tuser.Facebook\tuser.FacebookName\tuser.HomePhone\tuser.Instagram\tuser.Skype\tuser.Twitter\tuser.UniversityName\tuser.EducationStatus")
+	fmt.Printf("user.UID\tuser.FirstName\tuser.LastName\tuser.Photo200Orig\tuser.Sex\tuser.Bdate\tuser.City\tuser.Facebook\tuser.FacebookName\tuser.HomePhone\tuser.Instagram\tuser.Skype\tuser.Twitter\tuser.UniversityName\tuser.EducationStatus\n")
 	//see https://vk.com/dev/groups.getMembers
 	urlmask := baseUri + members + "?group_id=" + gid + "&fields=" + url.QueryEscape(fields) + version
 	var offset = 0
@@ -107,9 +107,6 @@ func main() {
 	for {
 		url := urlmask + count + "&offset=" + strconv.Itoa(offset)
 		offset = offset + 1000
-		//if offset == 100 {
-		//break
-		//}
 
 		b := HttpGet(url, nil)
 		//log.Println(string(b))
@@ -126,12 +123,12 @@ func main() {
 		}
 		items := res.Response.Users
 		if items == nil || len(items) == 0 {
-			log.Println("no items")
+			//log.Println("no items")
 			//больше нет юзеров
 			break
 		}
 		for _, user := range items {
-			fmt.Printf("%d\t%s\t%s\t%s\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t\n", user.UID, user.FirstName, user.LastName, user.Photo200Orig, user.Sex,
+			fmt.Printf("%d\t%s\t%s\t%s\t%d\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", user.UID, user.FirstName, user.LastName, user.Photo200Orig, user.Sex,
 				user.Bdate, user.City, user.Facebook, user.FacebookName, user.HomePhone, user.Instagram, user.Skype, user.Twitter,
 				user.UniversityName, user.EducationStatus)
 		}
